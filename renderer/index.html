@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <title>Stock Price Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>📈 Stock Monitor</h1>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" id="symbolSearch" placeholder="Search symbol..." autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+
+            <!-- Watchlist -->
+            <div class="watchlist-section">
+                <h3>Watchlist</h3>
+                <div id="watchlist" class="watchlist"></div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="alerts-section">
+                <h3>
+                    Price Alerts
+                    <button id="clearTriggeredBtn" class="btn-small" title="Clear triggered alerts">✓</button>
+                </h3>
+                <div id="alertsList" class="alerts-list"></div>
+                <button id="addAlertBtn" class="btn-primary">+ Add Alert</button>
+            </div>
+
+            <!-- Settings Button -->
+            <div class="sidebar-footer">
+                <button id="settingsBtn" class="btn-secondary">⚙️ Settings</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with stock info -->
+            <header class="stock-header">
+                <div class="stock-title">
+                    <h2 id="stockName">Select a stock</h2>
+                    <span id="stockSymbol" class="stock-symbol"></span>
+                </div>
+                <div class="stock-price-container">
+                    <span id="currentPrice" class="current-price">--</span>
+                    <span id="priceChange" class="price-change">--</span>
+                </div>
+            </header>
+
+            <!-- Controls -->
+            <div class="controls-bar">
+                <div class="time-range-buttons" id="timeRangeButtons">
+                    <button data-period="1d" data-interval="5m">1D</button>
+                    <button data-period="5d" data-interval="15m">5D</button>
+                    <button data-period="1mo" data-interval="1h">1M</button>
+                    <button data-period="3mo" data-interval="1d">3M</button>
+                    <button data-period="6mo" data-interval="1d">6M</button>
+                    <button data-period="1y" data-interval="1d" class="active">1Y</button>
+                    <button data-period="5y" data-interval="1wk">5Y</button>
+                    <button data-period="max" data-interval="1mo">MAX</button>
+                </div>
+                <div class="indicator-toggles">
+                    <label><input type="checkbox" id="showSMA1" checked> SMA <span id="sma1Label">20</span></label>
+                    <label><input type="checkbox" id="showSMA2" checked> SMA <span id="sma2Label">50</span></label>
+                    <label><input type="checkbox" id="showSMA3"> SMA <span id="sma3Label">200</span></label>
+                    <label><input type="checkbox" id="showEMA1"> EMA <span id="ema1Label">12</span></label>
+                    <label><input type="checkbox" id="showBB" checked> BB</label>
+                    <label><input type="checkbox" id="showVolume" checked> Vol</label>
+                </div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="chart-container">
+                <div id="priceChart" class="chart"></div>
+                <div id="volumeChart" class="volume-chart"></div>
+            </div>
+
+            <!-- Stock Details -->
+            <div class="stock-details">
+                <div class="detail-card">
+                    <span class="label">Open</span>
+                    <span id="detailOpen" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">High</span>
+                    <span id="detailHigh" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">Low</span>
+                    <span id="detailLow" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">Volume</span>
+                    <span id="detailVolume" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">Market Cap</span>
+                    <span id="detailMarketCap" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">P/E Ratio</span>
+                    <span id="detailPE" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">52W High</span>
+                    <span id="detail52High" class="value">--</span>
+                </div>
+                <div class="detail-card">
+                    <span class="label">52W Low</span>
+                    <span id="detail52Low" class="value">--</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Indicator Settings</h2>
+                <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-group">
+                    <h4>Moving Averages</h4>
+                    <div class="setting-row">
+                        <label>SMA 1 Period:</label>
+                        <input type="number" id="setSMA1" min="1" max="500" value="20">
+                    </div>
+                    <div class="setting-row">
+                        <label>SMA 2 Period:</label>
+                        <input type="number" id="setSMA2" min="1" max="500" value="50">
+                    </div>
+                    <div class="setting-row">
+                        <label>SMA 3 Period:</label>
+                        <input type="number" id="setSMA3" min="1" max="500" value="200">
+                    </div>
+                    <div class="setting-row">
+                        <label>EMA 1 Period:</label>
+                        <input type="number" id="setEMA1" min="1" max="500" value="12">
+                    </div>
+                    <div class="setting-row">
+                        <label>EMA 2 Period:</label>
+                        <input type="number" id="setEMA2" min="1" max="500" value="26">
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>Bollinger Bands</h4>
+                    <div class="setting-row">
+                        <label>Period:</label>
+                        <input type="number" id="setBBPeriod" min="1" max="100" value="20">
+                    </div>
+                    <div class="setting-row">
+                        <label>Std Dev:</label>
+                        <input type="number" id="setBBStdDev" min="0.5" max="5" step="0.5" value="2">
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>RSI</h4>
+                    <div class="setting-row">
+                        <label>Period:</label>
+                        <input type="number" id="setRSIPeriod" min="1" max="100" value="14">
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>MACD</h4>
+                    <div class="setting-row">
+                        <label>Fast Period:</label>
+                        <input type="number" id="setMACDFast" min="1" max="100" value="12">
+                    </div>
+                    <div class="setting-row">
+                        <label>Slow Period:</label>
+                        <input type="number" id="setMACDSlow" min="1" max="100" value="26">
+                    </div>
+                    <div class="setting-row">
+                        <label>Signal Period:</label>
+                        <input type="number" id="setMACDSignal" min="1" max="100" value="9">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeSettingsModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Alert Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Add Price Alert</h2>
+                <button class="modal-close" onclick="closeAlertModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <label>Symbol:</label>
+                    <input type="text" id="alertSymbol" placeholder="AAPL" style="text-transform: uppercase;">
+                </div>
+                <div class="setting-row">
+                    <label>Condition:</label>
+                    <select id="alertCondition">
+                        <option value="above">Price goes above</option>
+                        <option value="below">Price goes below</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Price ($):</label>
+                    <input type="number" id="alertPrice" min="0" step="0.01" placeholder="150.00">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAlertModal()">Cancel</button>
+                <button class="btn-primary" onclick="addAlert()">Add Alert</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
