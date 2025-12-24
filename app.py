@@ -22,23 +22,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Custom CSS for light theme styling
 st.markdown("""
 <style>
     .stApp {
-        background-color: #0e1117;
+        background-color: #ffffff;
     }
     .metric-card {
-        background-color: #1e2130;
+        background-color: #f8f9fa;
         padding: 1rem;
         border-radius: 0.5rem;
         margin: 0.5rem 0;
+        border: 1px solid #e9ecef;
     }
     .positive {
-        color: #00d26a;
+        color: #28a745;
     }
     .negative {
-        color: #ff4757;
+        color: #dc3545;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -296,7 +297,7 @@ def create_chart(df: pd.DataFrame, ticker: str, indicators: dict) -> go.Figure:
                 x=df.index,
                 y=df["BB_Upper"],
                 name="BB Upper",
-                line=dict(color="rgba(173, 216, 230, 0.7)", width=1),
+                line=dict(color="rgba(100, 149, 237, 0.8)", width=1),
             ),
             row=current_row,
             col=1
@@ -306,9 +307,9 @@ def create_chart(df: pd.DataFrame, ticker: str, indicators: dict) -> go.Figure:
                 x=df.index,
                 y=df["BB_Lower"],
                 name="BB Lower",
-                line=dict(color="rgba(173, 216, 230, 0.7)", width=1),
+                line=dict(color="rgba(100, 149, 237, 0.8)", width=1),
                 fill="tonexty",
-                fillcolor="rgba(173, 216, 230, 0.1)",
+                fillcolor="rgba(100, 149, 237, 0.15)",
             ),
             row=current_row,
             col=1
@@ -442,11 +443,11 @@ def create_chart(df: pd.DataFrame, ticker: str, indicators: dict) -> go.Figure:
     fig.update_layout(
         title=dict(
             text=f"{ticker} Stock Analysis",
-            font=dict(size=24, color="white"),
+            font=dict(size=24, color="#333333"),
         ),
-        template="plotly_dark",
-        paper_bgcolor="#0e1117",
-        plot_bgcolor="#0e1117",
+        template="plotly_white",
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#ffffff",
         height=200 + (rows * 200),
         showlegend=True,
         legend=dict(
@@ -455,7 +456,7 @@ def create_chart(df: pd.DataFrame, ticker: str, indicators: dict) -> go.Figure:
             y=1.02,
             xanchor="right",
             x=1,
-            font=dict(size=10),
+            font=dict(size=10, color="#333333"),
         ),
         xaxis_rangeslider_visible=False,
         hovermode="x unified",
@@ -463,11 +464,11 @@ def create_chart(df: pd.DataFrame, ticker: str, indicators: dict) -> go.Figure:
 
     # Update axes
     fig.update_xaxes(
-        gridcolor="#1e2130",
+        gridcolor="#e9ecef",
         showgrid=True,
     )
     fig.update_yaxes(
-        gridcolor="#1e2130",
+        gridcolor="#e9ecef",
         showgrid=True,
     )
 
@@ -700,7 +701,7 @@ def main():
     st.divider()
     st.markdown(
         """
-        <div style="text-align: center; color: #666;">
+        <div style="text-align: center; color: #6c757d;">
             Data provided by Yahoo Finance via yfinance |
             Built with Streamlit & Plotly
         </div>
